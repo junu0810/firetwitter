@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { getAuth,createUserWithEmailAndPassword, signInWithEmailAndPassword  } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { 
+    GithubAuthProvider,
+    GoogleAuthProvider,
+    signInWithEmailAndPassword,
+    signInWithPopup, } from 'fbase';
 
 
 const Auth = () => {
     const [email, setEmail] = useState("");
     const [password, setpassword] = useState("");
     const [newAccount, setAccount] = useState(true);
-    const [error,seterror] = useState("");
+    const [error, seterror] = useState("");
 
     function onChange(event) {
         if (event.target.name === 'email') {
@@ -22,17 +27,17 @@ const Auth = () => {
         console.log(`email : ${email} password:${password}`)
         //웹사이트가 새로고침되어 저장된 state값들이 사라지는걸 막는다.
         event.preventDefault();
-        if(!email.includes('@')){
+        if (!email.includes('@')) {
             alert('email 형식이 아닙니다.')
         }
-        else if(password.length < 6){
+        else if (password.length < 6) {
             alert('비밀번호는 6자리 이상이어야 합니다.')
         }
-        else{
+        else {
             try {
                 let data
                 if (newAccount) {
-                     data = await createUserWithEmailAndPassword(authService, email, password);
+                    data = await createUserWithEmailAndPassword(authService, email, password);
                 } else {
                     data = await signInWithEmailAndPassword(authService, email, password);
                 }
@@ -43,7 +48,44 @@ const Auth = () => {
             }
         }
     }
-    const toggleAccount = () => setAccount((newAccount)=> !newAccount)
+    const toggleAccount = () => setAccount((newAccount) => !newAccount)
+
+    // const onSocialClick = async (event) => {
+    //     const name = event.target.name
+
+    //     let provider;
+
+    //     if (name === 'google') {
+    //         provider = new firebaseInstance.auth.GoogleAuthProvider();
+    //     }
+    //     else if (name === 'github') {
+    //         provider = new firebaseInstance.auth.GithubAuthProvider();
+    //     }
+    //     const data = await authService.signInWithPopup(provider);
+    //     console.log(data)
+    // }
+    const onSocialClick = async (event) => {
+        const {
+        target: { name },
+        } = event;
+        let provider;
+        try {
+        if (name === "google") {
+        provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(authService, provider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        // const token = credential.accessToken;
+        } else if (name === "github") {
+        provider = new GithubAuthProvider();
+        const result = await signInWithPopup(authService, provider);
+        const credential = GithubAuthProvider.credentialFromResult(result);
+        // const token = credential.accessToken;
+        }
+        } catch (error) {
+        console.log(error);
+        }
+        };
+
     return (
         <div>
             <form onSubmit={onSubmit}>
@@ -54,8 +96,8 @@ const Auth = () => {
             </form>
             <span onClick={toggleAccount}>{newAccount ? "Log In" : "Create Account"}</span>
             <div>
-                <button>Continue with Google</button>
-                <button>Continue with Github</button>
+                <button onClick={onSocialClick} name='google'>Continue with Google</button>
+                <button onClick={onSocialClick} name='github'>Continue with Github</button>
             </div>
         </div>
     )
