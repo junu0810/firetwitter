@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { 
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
     GithubAuthProvider,
     GoogleAuthProvider,
-    signInWithEmailAndPassword,
-    signInWithPopup, } from 'fbase';
-
+    signInWithPopup,
+    } from "@firebase/auth";
 
 const Auth = () => {
     const [email, setEmail] = useState("");
@@ -50,42 +51,23 @@ const Auth = () => {
     }
     const toggleAccount = () => setAccount((newAccount) => !newAccount)
 
-    // const onSocialClick = async (event) => {
-    //     const name = event.target.name
-
-    //     let provider;
-
-    //     if (name === 'google') {
-    //         provider = new firebaseInstance.auth.GoogleAuthProvider();
-    //     }
-    //     else if (name === 'github') {
-    //         provider = new firebaseInstance.auth.GithubAuthProvider();
-    //     }
-    //     const data = await authService.signInWithPopup(provider);
-    //     console.log(data)
-    // }
     const onSocialClick = async (event) => {
-        const {
-        target: { name },
-        } = event;
-        let provider;
-        try {
-        if (name === "google") {
-        provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(authService, provider);
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        // const token = credential.accessToken;
-        } else if (name === "github") {
-        provider = new GithubAuthProvider();
-        const result = await signInWithPopup(authService, provider);
-        const credential = GithubAuthProvider.credentialFromResult(result);
-        // const token = credential.accessToken;
-        }
-        } catch (error) {
-        console.log(error);
-        }
-        };
+        const name = event.target.name
 
+        let provider;
+
+        if (name === 'google') {
+            provider = new GoogleAuthProvider();
+        }
+        else if (name === 'github') {
+            provider = new GithubAuthProvider();
+        }
+        const data = await signInWithPopup(authService,provider);
+        console.log(data)
+    }
+
+
+   
     return (
         <div>
             <form onSubmit={onSubmit}>
