@@ -1,34 +1,30 @@
 import { dbService } from 'fbase';
-import { addDoc, collection, getDoc, getDocs, query, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, getDoc, getDocs, query, serverTimestamp,orderBy,onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from 'react';
 
-const Home = () => {
+const Home = ({userObj}) => {
 
     const [ntweet, setTweet] = useState("");
     const [nweets, setNweets] = useState([]);
 
-    const getNweets = async () => {
-        const q = query(collection(dbService, 'ntweets'));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((document) => {
-            const nweetObj = {
-                ...document.data(),
-                id: document.id,
-            }
-            setNweets(prev => [nweetObj, ...prev]);
+    useEffect(async () => {
+        const q = query(
+        collection(dbService, "ntweets"),orderBy("createdAt", "desc"));
+        await onSnapshot(q, (snapshot) => {
+        const nweetArr = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        }));
+        setNweets(nweetArr);
         });
-    }
-
-    useEffect(() => {
-        getNweets();
-    }, [])
+        }, []);
 
 
     async function onSubmit(event) {
         event.preventDefault()
         console.log(`submit Tweet: ${ntweet}`)
         await addDoc(collection(dbService, "ntweets"), {
-            ntweet,
+            text: ntweet,
             createdAt: serverTimestamp(),
         });
         setTweet("");
@@ -55,7 +51,7 @@ const Home = () => {
         <div>
             {nweets.map(el=>(
                 <div key={el.id}>
-                    <h4>{el.ntweet}</h4>
+                    <h4>{el.text}</h4>
                 </div> ))
             }
         </div>
