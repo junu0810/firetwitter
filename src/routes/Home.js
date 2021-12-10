@@ -1,8 +1,10 @@
 import { fireEvent } from '@testing-library/react';
 import Nweet from 'components/Nweet';
+import {v4} from 'uuid'
 import { dbService } from 'fbase';
 import { addDoc, collection, getDoc, getDocs, query, serverTimestamp, orderBy, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from 'react';
+import { uploadBytes } from '@firebase/storage';
 
 const Home = ({ userObj }) => {
 
@@ -25,13 +27,16 @@ const Home = ({ userObj }) => {
 
     async function onSubmit(event) {
         event.preventDefault()
-        console.log(`submit Tweet: ${ntweet}`)
-        await addDoc(collection(dbService, "ntweets"), {
-            text: ntweet,
-            createdAt: serverTimestamp(),
-            creatorId: userObj.uid
-        });
-        setTweet("");
+        const fileref =  ref(storageService,`${userObj.uid}/${v4()}`)
+        const responce = await uploadString(fileref,file,"data_url");
+        console.log(responce)
+        // console.log(`submit Tweet: ${ntweet}`)
+        // await addDoc(collection(dbService, "ntweets"), {
+        //     text: ntweet,
+        //     createdAt: serverTimestamp(),
+        //     creatorId: userObj.uid
+        // });
+        // setTweet("");
     }
 
     function onChange(event) {
