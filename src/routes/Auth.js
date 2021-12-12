@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
     getAuth,
     createUserWithEmailAndPassword,
@@ -63,7 +63,6 @@ const Auth = () => {
             provider = new GithubAuthProvider();
         }
         const data = await signInWithPopup(authService,provider);
-        // console.log(data)
     }
 
 

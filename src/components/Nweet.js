@@ -1,6 +1,8 @@
-import { dbService } from 'fbase'
+import { dbService, storageService } from 'fbase'
 import { doc,deleteDoc, updateDoc } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react'
+import { deleteObject } from 'firebase/storage';
+import React, { useState } from 'react'
+import {ref} from 'firebase/storage'
 
 
 function Nweet ({nweetObj ,isOwner}){
@@ -13,6 +15,8 @@ function Nweet ({nweetObj ,isOwner}){
         const ok = window.confirm('Are you sure you wnat to delete this?');
         if(ok){
             await deleteDoc(textaddress);
+            const Deleteele = ref(storageService, nweetObj.fileURL);
+            await deleteObject(Deleteele);
         }
     }
 
@@ -45,6 +49,7 @@ function onChange(event) {
             <>
                     <div key={nweetObj.id}>
             <h4>{nweetObj.text}</h4>
+            {nweetObj.fileURL && <img src={nweetObj.fileURL} width='50px' height='50px' />}
             {isOwner && (
                <>
                <button onClick={oneDelete}>Delete Nweet</button>

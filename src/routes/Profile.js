@@ -1,9 +1,10 @@
-import { authService } from 'fbase';
+import { authService, dbService } from 'fbase';
+import { collection, getDocs, query,where} from 'firebase/firestore';
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
 
-export default ()=> {
+export default ({userObj})=> {
     
     const navigate = useNavigate();
 
@@ -11,6 +12,18 @@ export default ()=> {
         authService.signOut();
         navigate('/')
     }   
+   
+   async function getMyNtweets(){
+        const ntweets  = query(
+            collection(dbService, 'nwtweets'),
+            where('creatorId', '==', userObj.uid)
+            .get()
+            )
+        const querySnapshot = await getDocs(ntweets);
+        querySnapshot.forEach(doc => {
+            console.log(doc.id, '=>', doc.data());
+        }) 
+    };
     
     
     return (

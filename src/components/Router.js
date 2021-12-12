@@ -14,7 +14,7 @@ const Routing = ({isLoggedIn ,userObj}) => {
                 {isLoggedIn ?
                     <>
                     <Route exact path='/' element={<Home userObj={userObj}/>} />
-                    <Route exact path='/Profile' element={<Profile/>} />
+                    <Route exact path='/Profile' element={<Profile userObj={userObj}/>} />
                     {
                     /* //모든 URL이 '/'이 아니면 '/'로 돌아가라는 뜻 (React Redirect) 로그아웃 했을떄 로그인 화면으로 전환하기 위함
                     <Redirect form="*" to="/" /> */

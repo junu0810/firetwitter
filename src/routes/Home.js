@@ -1,16 +1,17 @@
-import { fireEvent } from '@testing-library/react';
 import Nweet from 'components/Nweet';
-import {v4} from 'uuid'
-import { dbService } from 'fbase';
-import { addDoc, collection, getDoc, getDocs, query, serverTimestamp, orderBy, onSnapshot } from "firebase/firestore";
+import { v4 } from 'uuid'
+import { dbService, storageService } from 'fbase';
+import { addDoc, collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from 'react';
-import { uploadBytes } from '@firebase/storage';
+import { uploadString, ref, getDownloadURL } from '@firebase/storage';
 
 const Home = ({ userObj }) => {
-
+    //트윗 메세지를 입력하기 위해 담는 useState
     const [ntweet, setTweet] = useState("");
+    //firebase에 저장된 데이터를 담아두는 useState
     const [nweets, setNweets] = useState([]);
-    const [file, setfile] = useState('')
+    //image URL을 담기위한 useState();
+    const [file, setFile] = useState('')
 
     useEffect(async () => {
         const q = query(
@@ -23,20 +24,28 @@ const Home = ({ userObj }) => {
             setNweets(nweetArr);
         });
     }, []);
-
+    console.log(nweets)
 
     async function onSubmit(event) {
-        event.preventDefault()
-        const fileref =  ref(storageService,`${userObj.uid}/${v4()}`)
-        const responce = await uploadString(fileref,file,"data_url");
-        console.log(responce)
-        // console.log(`submit Tweet: ${ntweet}`)
-        // await addDoc(collection(dbService, "ntweets"), {
-        //     text: ntweet,
-        //     createdAt: serverTimestamp(),
-        //     creatorId: userObj.uid
-        // });
-        // setTweet("");
+        event.preventDefault();
+        let fileURL = '';
+        if(file !== ''){
+            //파일경로 참조 만들기
+            const fileref = ref(storageService, `${userObj.email}/${v4()}`)
+            //Storage 참조 경로로 파일 업로드 하기
+            const responce = await uploadString(fileref, file, "data_url");
+            console.log(responce.ref)
+            //storage에 있는 파일 URL다운로드 하기 
+            const fileURL = await getDownloadURL(responce.ref)
+        }
+        await addDoc(collection(dbService, "ntweets"), {
+            text: ntweet,
+            createdAt: Date(),
+            creatorId: userObj.uid,
+            fileURL
+        });
+        setTweet('');
+        setFile('');
     }
 
     function onChange(event) {
@@ -54,12 +63,12 @@ const Home = ({ userObj }) => {
         reader.readAsDataURL(theFile);
         reader.onloadend = (finishedEvent) => {
             const { currentTarget: { result } } = finishedEvent
-            setfile(result)
+            setFile(result)
         }
     }
 
     function clearPhoto() {
-        setfile(null)        
+        setFile(null)
     }
 
     return (
@@ -76,7 +85,7 @@ const Home = ({ userObj }) => {
                 {file && <div>
                     <img src={file} width="50px" height="50px" />
                     <button onClick={clearPhoto}> Clear IMG</button>
-                    </div>}
+                </div>}
             </form>
             <div>
                 {nweets.map(el => (
