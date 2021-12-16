@@ -59,8 +59,7 @@ const Home = ({ userObj }) => {
     function onFileChange(event) {
         const { target: { files } } = event
         const theFile = files[0];
-        const reader = new FileReader();
-        reader.readAsDataURL(theFile);
+                reader.readAsDataURL(theFile);
         reader.onloadend = (finishedEvent) => {
             const { currentTarget: { result } } = finishedEvent
             setFile(result)
